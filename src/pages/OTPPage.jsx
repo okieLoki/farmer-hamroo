@@ -1,0 +1,173 @@
+import React, { useState, useRef } from 'react';
+import {
+    View,
+    Text,
+    TextInput,
+    SafeAreaView,
+    StyleSheet,
+    Image
+} from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { Button } from 'react-native-paper';
+
+const OTPPage = () => {
+    // hooks
+    const navigation = useNavigation();
+    const route = useRoute();
+    const [otp, setOTP] = useState(['', '', '', '']);
+    const otpInputRefs = [useRef(), useRef(), useRef(), useRef()];
+
+    // hide the header
+    React.useEffect(() => {
+        navigation.setOptions({
+            headerShown: false,
+        });
+    }, []);
+
+    // route params
+    const phoneNumber = route.params.phoneNumber;
+
+    // functions
+    const handleOtpInputChange = (index, value) => {
+        if (/^\d*$/.test(value) && value.length <= 1) {
+            const newOtp = [...otp];
+            newOtp[index] = value;
+            setOTP(newOtp);
+            if (index < 3 && value.length > 0) {
+                otpInputRefs[index + 1].current.focus();
+            }
+        }
+    };
+
+    const handleBackspace = (index) => {
+        if (index > 0 && !otp[index]) {
+            otpInputRefs[index - 1].current.focus();
+        }
+    };
+
+    const verifyOTP = () => {
+        const finalOTP = otp.join('');
+
+    };
+
+    return (
+        <SafeAreaView style={styles.container}>
+
+            <View style={styles.upperContainer}>
+
+                <View style={styles.otpLogo}>
+                    <Image
+                        source={require('../../assets/otp.png')}
+                        style={styles.logo}
+                        resizeMode="contain"
+                    />
+                </View>
+
+                <Text style={styles.header}>
+                    Verification
+                </Text>
+
+                <Text style={styles.otpText}>
+
+                    We have sent an One Time Password (OTP) to your mobile number {phoneNumber}.
+                </Text>
+
+            </View>
+
+            <View style={styles.lowerContainer}>
+                <View style={styles.otpContainer}>
+                    {otp.map((digit, index) => (
+                        <TextInput
+                            key={index}
+                            style={styles.otpInput}
+                            value={digit}
+                            onChangeText={(value) => handleOtpInputChange(index, value)}
+                            onKeyPress={({ nativeEvent }) => {
+                                if (nativeEvent.key === 'Backspace') {
+                                    handleBackspace(index);
+                                } else if (/^\d$/.test(nativeEvent.key)) {
+                                    handleOtpInputChange(index, nativeEvent.key);
+                                }
+                            }}
+                            keyboardType='numeric'
+                            ref={otpInputRefs[index]}
+                            maxLength={1}
+                        />
+                    ))}
+                </View>
+                <Button style={styles.button} onPress={verifyOTP}>
+                    <Text style={styles.buttonText}>VERIFY</Text>
+                </Button>
+            </View>
+
+        </SafeAreaView>
+    );
+
+};
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f5f5f5',
+    },
+    otpLogo: {
+        backgroundColor: '#ECEDEC',
+        borderRadius: 60,
+        padding: 20,
+        margin: 10
+    },
+    header: {
+        fontSize: 30,
+        fontWeight: 'bold',
+        color: '#515151'
+    },
+    upperContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f5f5f5',
+        gap: 12
+    },
+    lowerContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '60%',
+        backgroundColor: '#f5f5f5',
+    },
+    otpContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    otpInput: {
+        width: 60,
+        height: 60,
+        borderWidth: 1,
+        textAlign: 'center',
+        marginRight: 10,
+        fontSize: 16,
+        borderRadius: 4,
+        borderColor: '#ccc',
+    },
+    otpText: {
+        fontSize: 15,
+        marginBottom: 10,
+        color: '#8E8E8F',
+        textAlign: 'center',
+        marginHorizontal: 20,
+    },
+    button: {
+        marginBottom: 10,
+        width: '100%',
+        backgroundColor: '#3bac64',
+    },
+    buttonText: {
+        color: '#fff',
+    },
+});
+
+
+export { OTPPage };
