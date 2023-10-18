@@ -1,3 +1,6 @@
 export * from './LoginPage'
 export * from './OTPPage'
 export * from './HomePage'
+export * from './Collection'
+export * from './Ledger'
+export * from './Profile'

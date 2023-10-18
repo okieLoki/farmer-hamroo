@@ -11,8 +11,10 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { Button } from 'react-native-paper';
 import { useToast } from "react-native-toast-notifications";
 import axios from 'axios';
+import * as SecureStore from 'expo-secure-store';
+import { CommonActions } from '@react-navigation/native';
 
-const OTPPage = () => {
+const OTPPage = ({setAuthenticated}) => {
     // hooks
     const navigation = useNavigation();
     const route = useRoute();
@@ -61,11 +63,27 @@ const OTPPage = () => {
         )
 
         if(response.status === 200) {
+
+            console.log(response.data);
             setLoading(false);
+
+            const farmerData = response.data.farmer;
+
+            await SecureStore.setItemAsync('authenticated', 'true');
+            await SecureStore.setItemAsync('farmerData', JSON.stringify(farmerData));
+
+            setAuthenticated(true);
 
             axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
 
-            navigation.navigate('HomePage');
+            navigation.dispatch(
+                CommonActions.reset({
+                    index: 0,
+                    routes: [
+                        { name: 'HomePage' }
+                    ],
+                })
+            );
         } else {
             setLoading(false);
             toast.show('Invalid OTP', {
