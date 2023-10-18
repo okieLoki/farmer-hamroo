@@ -9,11 +9,14 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Button } from 'react-native-paper';
+import { useToast } from "react-native-toast-notifications";
+import axios from 'axios';
 
 const OTPPage = () => {
     // hooks
     const navigation = useNavigation();
     const route = useRoute();
+    const toast = useToast();
     const [otp, setOTP] = useState(['', '', '', '']);
     const otpInputRefs = [useRef(), useRef(), useRef(), useRef()];
 
@@ -23,6 +26,9 @@ const OTPPage = () => {
             headerShown: false,
         });
     }, []);
+
+    // states
+    const [loading, setLoading] = useState(false);
 
     // route params
     const phoneNumber = route.params.phoneNumber;
@@ -45,8 +51,30 @@ const OTPPage = () => {
         }
     };
 
-    const verifyOTP = () => {
+    const verifyOTP = async () => {
+        setLoading(true);
         const finalOTP = otp.join('');
+
+        const response = await axios.patch(
+            'https://busy-top-coat-bear.cyclic.app/api/farmer/otp/verify',
+            { otp: finalOTP }
+        )
+
+        if(response.status === 200) {
+            setLoading(false);
+
+            axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+
+            navigation.navigate('HomePage');
+        } else {
+            setLoading(false);
+            toast.show('Invalid OTP', {
+                type: 'normal',
+                placement: 'top',
+                duration: 3000,
+                animationType: 'slide-in'
+            })
+        }
 
     };
 
@@ -95,7 +123,11 @@ const OTPPage = () => {
                         />
                     ))}
                 </View>
-                <Button style={styles.button} onPress={verifyOTP}>
+                <Button 
+                style={styles.button} 
+                onPress={verifyOTP}
+                loading={loading}
+                >
                     <Text style={styles.buttonText}>VERIFY</Text>
                 </Button>
             </View>

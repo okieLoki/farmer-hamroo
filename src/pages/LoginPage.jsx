@@ -3,6 +3,7 @@ import { View, SafeAreaView, Image, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { TextInput, Button } from 'react-native-paper';
 import { useToast } from "react-native-toast-notifications";
+import axios from 'axios';
 
 const LoginPage = () => {
 
@@ -19,9 +20,13 @@ const LoginPage = () => {
 
     // state management
     const [phoneNumber, setPhoneNumber] = useState('');
+    const [loading, setLoading] = useState(false);
 
     // functions
     const handleSubmit = async () => {
+
+        setLoading(true);
+
         if (phoneNumber.length !== 10) {
             toast.show('Please enter a valid phone number', {
                 type: 'normal',
@@ -32,8 +37,40 @@ const LoginPage = () => {
             return
         }
 
-        navigation.navigate('OTPPage', { phoneNumber });
-        
+        try {
+            const response = await axios.post(
+                'https://busy-top-coat-bear.cyclic.app/api/farmer/otp',
+                { mobileNumber: phoneNumber }
+            )
+
+            if(response.status !== 200) throw new Error('Something went wrong');
+
+            else {
+                setLoading(false);
+                toast.show('OTP sent successfully', {
+                    type: 'normal',
+                    placement: 'top',
+                    duration: 3000,
+                    animationType: 'slide-in'
+                })
+
+                axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+
+                navigation.navigate('OTPPage', {
+                    phoneNumber
+                });
+            }
+        } catch (error) {
+            setLoading(false);
+            toast.show('Something went wrong', {
+                type: 'normal',
+                placement: 'top',
+                duration: 3000,
+                animationType: 'slide-in'
+            })
+            return
+        }
+
     };
 
     return (
@@ -63,6 +100,7 @@ const LoginPage = () => {
                     mode="contained"
                     style={styles.submitButton}
                     onPress={handleSubmit}
+                    loading={loading}
                 >
                     GET OTP
                 </Button>

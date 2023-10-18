@@ -3,7 +3,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { PaperProvider } from 'react-native-paper'
 import {
   LoginPage,
-  OTPPage
+  OTPPage,
+  HomePage
 } from './src/pages'
 import { useFonts } from 'expo-font'
 import { ToastProvider } from 'react-native-toast-notifications'
@@ -29,6 +30,7 @@ export default function App() {
           <Stack.Navigator>
             <Stack.Screen name="LoginPage" component={LoginPage} />
             <Stack.Screen name="OTPPage" component={OTPPage} />
+            <Stack.Screen name="HomePage" component={HomePage} />
           </Stack.Navigator>
         </ToastProvider>
       </PaperProvider>
