@@ -5,12 +5,11 @@ import {
   LoginPage,
   OTPPage,
   HomePage,
-  Collection,
-  Ledger,
 } from './src/pages'
 import { ToastProvider } from 'react-native-toast-notifications'
 import * as SecureStore from 'expo-secure-store'
 import React, { useState, useEffect } from 'react'
+import { setToken } from './src/utils/getToken';
 
 const Stack = createNativeStackNavigator()
 
@@ -54,6 +53,12 @@ export default function App() {
         setAuthenticated(false);
       }
     };
+
+    const tokenSetter = async () => {
+      await setToken();
+    }
+
+    tokenSetter();
     checkAuth();
   }, []);
 

@@ -70,6 +70,7 @@ const OTPPage = ({setAuthenticated}) => {
             const farmerData = response.data.farmer;
 
             await SecureStore.setItemAsync('authenticated', 'true');
+            await SecureStore.setItemAsync('token', response.data.token);
             await SecureStore.setItemAsync('farmerData', JSON.stringify(farmerData));
 
             setAuthenticated(true);
