@@ -28,4 +28,16 @@ const formatAmount = (amt) => {
     return amt.toFixed(2);
 }
 
-export { formatDate, EM, formatAmount };
+const formatDateLedger = (date) => {
+    // display date in dd/mm/yy 
+
+    const d = new Date(date);
+
+    const year = d.getFullYear();
+    const month = d.getMonth() + 1;
+    const day = d.getDate();
+
+    return `${month}-${day}-${year}`;
+}
+
+export { formatDate, EM, formatAmount, formatDateLedger };
