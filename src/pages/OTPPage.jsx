@@ -80,11 +80,8 @@ const OTPPage = ({ setAuthenticated }) => {
                 console.log(response.data);
                 setLoading(false);
 
-                const farmerData = response.data.farmer;
-
                 await SecureStore.setItemAsync('authenticated', 'true');
                 await SecureStore.setItemAsync('token', response.data.token);
-                await SecureStore.setItemAsync('farmerData', JSON.stringify(farmerData));
 
                 setAuthenticated(true);
 
@@ -94,7 +91,7 @@ const OTPPage = ({ setAuthenticated }) => {
                     CommonActions.reset({
                         index: 0,
                         routes: [
-                            { name: 'HomePage' }
+                            { name: 'ProfileSelection' }
                         ],
                     })
                 );

@@ -35,6 +35,7 @@ const LoginPage = () => {
                 duration: 3000,
                 animationType: 'slide-in'
             })
+            setLoading(false);
             return
         }
 
@@ -63,6 +64,7 @@ const LoginPage = () => {
             }
         } catch (error) {
             setLoading(false);
+            console.log(error)
             toast.show('Something went wrong', {
                 type: 'normal',
                 placement: 'top',

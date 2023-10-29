@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, ScrollView, Text, StyleSheet, SafeAreaView, ActivityIndicator } from 'react-native';
+import { View, ScrollView, Text, SafeAreaView, ActivityIndicator } from 'react-native';
 import { DataTable, Button } from 'react-native-paper';
 import axios from 'axios';
 import { formatDate, formatAmount, formatDateLedger } from '../utils/collectionFormatters';
@@ -41,18 +41,45 @@ const Ledger = () => {
     const startDateString = formatDateLedger(startDate);
     const endDateString = formatDateLedger(endDate);
 
-    useEffect(() => {
+    const fetchData = async () => {
+        setLoading(true);
 
-        const fetchData = async () => {
-            setLoading(true);
-            const response = await axios.get(`https://busy-top-coat-bear.cyclic.app/api/farmer/ledger?startDate=${formatDateLedger(startDate)}&endDate=${formatDateLedger(endDate)}`);
-            setLedgerData(response.data.ledger);
-            setBalance(response.data.balance);
+        if (!checkDate(startDate, endDate)) {
             setLoading(false);
+
+            setEndDate(new Date());
+            setStartDate(new Date(Date.now() - 60 * 24 * 60 * 60 * 1000));
+
+            return;
         }
 
-        fetchData();
+        const response = await axios.get(`https://busy-top-coat-bear.cyclic.app/api/farmer/ledger?startDate=${formatDateLedger(startDate)}&endDate=${formatDateLedger(endDate)}`);
 
+    
+        if(response.status === 200){
+            setLedgerData(response.data.ledger);
+            setBalance(response.data.balance);
+
+            console.log(response.data.ledger);
+        }
+        else if(response.status !== 200){
+            console.log(response.data.ledger);
+            alert(`No Data found for date ${formatDateLedger(startDate)} to ${formatDateLedger(endDate)}}`)
+        }
+
+        setLoading(false);
+    };
+
+    const checkDate = (start, end) => {
+        if (start >= end) {
+            alert('Start date cannot be greater than end date');
+            return false;
+        }
+        return true;
+    }
+
+    useEffect(() => {
+        fetchData();
     }, [startDate, endDate]);
 
 
@@ -183,7 +210,5 @@ const Ledger = () => {
         </SafeAreaView>
     );
 };
-
-
 
 export { Ledger };

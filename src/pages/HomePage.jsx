@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect } from 'react';
+import React, { useLayoutEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
 import { Collection, Ledger, Profile } from './index';
@@ -23,6 +23,7 @@ const HomePage = ({ setAuthenticated }) => {
       screenOptions={{
         headerShown: false,
       }}
+
     >
       <Tab.Screen
         name='Collection'

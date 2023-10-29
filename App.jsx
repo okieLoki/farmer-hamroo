@@ -5,6 +5,7 @@ import {
   LoginPage,
   OTPPage,
   HomePage,
+  ProfileSelection
 } from './src/pages'
 import { ToastProvider } from 'react-native-toast-notifications'
 import * as SecureStore from 'expo-secure-store'
@@ -16,6 +17,8 @@ const Stack = createNativeStackNavigator()
 const AuthenticatedStack = ({ setAuthenticated }) => {
   return (
     <Stack.Navigator>
+
+      <Stack.Screen name="ProfileSelection" component={ProfileSelection} />
       <Stack.Screen name="HomePage">
         {(props) => (
           <HomePage {...props} setAuthenticated={setAuthenticated} />

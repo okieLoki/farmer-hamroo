@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import { styles } from '../styles/CollectionStyles';
 import CollectionTable from '../components/CollectionTable';
 
@@ -13,21 +12,13 @@ const Collection = () => {
     const fetchData = async () => {
         setIsLoading(true);
         try {
-            const cachedData = await AsyncStorage.getItem(selectedPeriod);
-            if (cachedData) {
-
-                setCollections(JSON.parse(cachedData));
-            } else {
-                const url = `https://busy-top-coat-bear.cyclic.app/api/farmer/collections?period=${selectedPeriod.toLowerCase()}`;
-                const response = await axios.get(url);
-                arrangeCollections(response.data.collections);
-
-               
-                await AsyncStorage.setItem(selectedPeriod, JSON.stringify(response.data.collections));
-
-                setCollections(response.data.collections);
-            }
+            const url = `https://busy-top-coat-bear.cyclic.app/api/farmer/collections?period=${selectedPeriod.toLowerCase()}`;
+            const response = await axios.get(url);
+            arrangeCollections(response.data.collections);
+            setCollections(response.data.collections);
             setIsLoading(false);
+
+            console.log(response.data.collections[0].farmerName);
         } catch (error) {
             setIsLoading(false);
         }
@@ -74,6 +65,8 @@ const Collection = () => {
                     <CollectionTable collections={collections} />
                 )
             }
+
+
         </View>
     );
 };

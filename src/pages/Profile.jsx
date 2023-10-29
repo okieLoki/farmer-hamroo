@@ -21,6 +21,8 @@ const Profile = ({ setAuthenticated }) => {
     const farmerData = await SecureStore.getItemAsync('farmerData');
     const farmer = JSON.parse(farmerData);
 
+    console.log(farmer);
+
     setFarmer(farmer);
   };
 
@@ -39,7 +41,7 @@ const Profile = ({ setAuthenticated }) => {
       <View style={styles.userInfoTable}>
         <View style={styles.userInfoRow}>
           <Text style={styles.userInfoLabel}>Farmer ID:</Text>
-          <Text style={styles.userInfoText}>{farmer.farmerID}</Text>
+          <Text style={styles.userInfoText}>{farmer.farmerId}</Text>
         </View>
 
         <View style={styles.userInfoRow}>
@@ -51,6 +53,22 @@ const Profile = ({ setAuthenticated }) => {
           <Text style={styles.userInfoLabel}>Mobile Number:</Text>
           <Text style={styles.userInfoText}>{farmer.mobile_number}</Text>
         </View>
+
+        <View style={styles.userInfoRow}>
+          <Text style={styles.userInfoLabel}>Admin Name:</Text>
+          <Text style={styles.userInfoText}>{farmer.admin?.admin_username}</Text>
+        </View>
+
+        <View style={styles.userInfoRow}>
+          <Text style={styles.userInfoLabel}>Admin Contact Person:</Text>
+          <Text style={styles.userInfoText}>{farmer.admin?.admin_contact_person}</Text>
+        </View>
+
+        <View style={styles.userInfoRow}>
+          <Text style={styles.userInfoLabel}>Admin Contact Number:</Text>
+          <Text style={styles.userInfoText}>{farmer.admin?.admin_mobile_number}</Text>
+        </View>
+
       </View>
 
       {/* Logout Button */}
