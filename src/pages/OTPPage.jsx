@@ -14,7 +14,7 @@ import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { CommonActions } from '@react-navigation/native';
 
-const OTPPage = ({setAuthenticated}) => {
+const OTPPage = ({ setAuthenticated }) => {
     // hooks
     const navigation = useNavigation();
     const route = useRoute();
@@ -54,46 +54,70 @@ const OTPPage = ({setAuthenticated}) => {
     };
 
     const verifyOTP = async () => {
-        setLoading(true);
-        const finalOTP = otp.join('');
 
-        const response = await axios.patch(
-            'https://busy-top-coat-bear.cyclic.app/api/farmer/otp/verify',
-            { otp: finalOTP }
-        )
+        try {
+            setLoading(true);
+            const finalOTP = otp.join('');
 
-        if(response.status === 200) {
-
-            console.log(response.data);
-            setLoading(false);
-
-            const farmerData = response.data.farmer;
-
-            await SecureStore.setItemAsync('authenticated', 'true');
-            await SecureStore.setItemAsync('token', response.data.token);
-            await SecureStore.setItemAsync('farmerData', JSON.stringify(farmerData));
-
-            setAuthenticated(true);
-
-            axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-
-            navigation.dispatch(
-                CommonActions.reset({
-                    index: 0,
-                    routes: [
-                        { name: 'HomePage' }
-                    ],
+            if (finalOTP.length !== 4) {
+                setLoading(false);
+                toast.show('Please enter a valid OTP', {
+                    type: 'normal',
+                    placement: 'top',
+                    duration: 3000,
+                    animationType: 'slide-in'
                 })
-            );
-        } else {
+                return
+            }
+
+            const response = await axios.patch(
+                'https://busy-top-coat-bear.cyclic.app/api/farmer/otp/verify',
+                { otp: finalOTP }
+            )
+
+            if (response.status === 200) {
+
+                console.log(response.data);
+                setLoading(false);
+
+                const farmerData = response.data.farmer;
+
+                await SecureStore.setItemAsync('authenticated', 'true');
+                await SecureStore.setItemAsync('token', response.data.token);
+                await SecureStore.setItemAsync('farmerData', JSON.stringify(farmerData));
+
+                setAuthenticated(true);
+
+                axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+
+                navigation.dispatch(
+                    CommonActions.reset({
+                        index: 0,
+                        routes: [
+                            { name: 'HomePage' }
+                        ],
+                    })
+                );
+            } else if(response.status === 400){
+                setLoading(false);
+                toast.show('Invalid OTP', {
+                    type: 'normal',
+                    placement: 'top',
+                    duration: 3000,
+                    animationType: 'slide-in'
+                })
+            }
+        } catch (error) {
             setLoading(false);
-            toast.show('Invalid OTP', {
+            toast.show('Something went wrong', {
                 type: 'normal',
                 placement: 'top',
                 duration: 3000,
                 animationType: 'slide-in'
             })
+            return
         }
+
 
     };
 
@@ -142,10 +166,10 @@ const OTPPage = ({setAuthenticated}) => {
                         />
                     ))}
                 </View>
-                <Button 
-                style={styles.button} 
-                onPress={verifyOTP}
-                loading={loading}
+                <Button
+                    style={styles.button}
+                    onPress={verifyOTP}
+                    loading={loading}
                 >
                     <Text style={styles.buttonText}>VERIFY</Text>
                 </Button>

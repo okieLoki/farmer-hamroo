@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, ScrollView, Text, StyleSheet, SafeAreaView } from 'react-native';
+import { View, ScrollView, Text, StyleSheet, SafeAreaView, ActivityIndicator } from 'react-native';
 import { DataTable, Button } from 'react-native-paper';
 import axios from 'axios';
 import { formatDate, formatAmount, formatDateLedger } from '../utils/collectionFormatters';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { styles } from '../styles/LedgerStyles';
 
 const Ledger = () => {
     const [ledgerData, setLedgerData] = useState([]);
@@ -12,6 +13,8 @@ const Ledger = () => {
     const [isPickerShow2, setIsPickerShow2] = useState(false);
     const [startDate, setStartDate] = useState(new Date(Date.now() - 60 * 24 * 60 * 60 * 1000));
     const [endDate, setEndDate] = useState(new Date());
+    const [balance, setBalance] = useState(0);
+    const [loading, setLoading] = useState(false);
 
     const showPicker1 = () => {
         setIsPickerShow1(true);
@@ -40,17 +43,18 @@ const Ledger = () => {
 
     useEffect(() => {
 
-        console.log(`https://busy-top-coat-bear.cyclic.app/api/farmer/ledger?startDate=${formatDateLedger(startDate)}&endDate=${formatDateLedger(endDate)}`);
+        const fetchData = async () => {
+            setLoading(true);
+            const response = await axios.get(`https://busy-top-coat-bear.cyclic.app/api/farmer/ledger?startDate=${formatDateLedger(startDate)}&endDate=${formatDateLedger(endDate)}`);
+            setLedgerData(response.data.ledger);
+            setBalance(response.data.balance);
+            setLoading(false);
+        }
 
-        axios
-            .get(`https://busy-top-coat-bear.cyclic.app/api/farmer/ledger?startDate=${formatDateLedger(startDate)}&endDate=${formatDateLedger(endDate)}`)
-            .then(response => {
-                setLedgerData(response.data);
-            })
-            .catch(error => {
-                console.error('Error fetching data: ', error);
-            });
+        fetchData();
+
     }, [startDate, endDate]);
+
 
     return (
         <SafeAreaView style={styles.container}>
@@ -125,91 +129,61 @@ const Ledger = () => {
                 </View>
             </View>
 
-            <View>
-                <DataTable style={styles.tableContainer}>
-                    <DataTable.Header>
-                        <DataTable.Title>
-                            <Text style={styles.headerText}>Date</Text>
-                        </DataTable.Title>
-                        <DataTable.Title>
-                            <Text style={styles.headerText}>Credit</Text>
-                        </DataTable.Title>
-                        <DataTable.Title>
-                            <Text style={styles.headerText}>Debit</Text>
-                        </DataTable.Title>
-                        <DataTable.Title>
-                            <Text style={styles.headerText}>Remarks</Text>
-                        </DataTable.Title>
-                    </DataTable.Header>
+            {
+                loading ? (
+                    <ActivityIndicator size="large" color="green" />
+                ) : (
 
-                    <ScrollView>
-                        {ledgerData.map((entry, index) => (
-                            <DataTable.Row key={index} style={index % 2 === 0 ? styles.dataRowEven : styles.dataRowOdd}>
-                                <DataTable.Cell style={styles.cell}>{formatDate(entry.date)}</DataTable.Cell>
-                                <DataTable.Cell style={styles.cell}>{formatAmount(entry.credit)}</DataTable.Cell>
-                                <DataTable.Cell style={styles.cell}>{formatAmount(entry.debit)}</DataTable.Cell>
-                                <DataTable.Cell style={styles.cell}>{entry.remarks}</DataTable.Cell>
-                            </DataTable.Row>
-                        ))}
-                    </ScrollView>
+                    <View>
+                        {
+                            ledgerData.length === 0 ? (
+                                <Text style={styles.noData}>No data found</Text>
+                            ) : (
+                                <View>
+                                    <View style={styles.balanceContainer}>
+                                        <Text
+                                            style={styles.balanceText}
+                                        >BALANCE: {balance}</Text>
+                                    </View>
+                                    <DataTable style={styles.tableContainer}>
+                                        <DataTable.Header>
+                                            <DataTable.Title>
+                                                <Text style={styles.headerText}>Date</Text>
+                                            </DataTable.Title>
+                                            <DataTable.Title>
+                                                <Text style={styles.headerText}>Credit</Text>
+                                            </DataTable.Title>
+                                            <DataTable.Title>
+                                                <Text style={styles.headerText}>Debit</Text>
+                                            </DataTable.Title>
+                                            <DataTable.Title>
+                                                <Text style={styles.headerText}>Remarks</Text>
+                                            </DataTable.Title>
+                                        </DataTable.Header>
 
-                </DataTable>
-            </View>
+                                        <ScrollView>
+                                            {ledgerData.map((entry, index) => (
+                                                <DataTable.Row key={index} style={index % 2 === 0 ? styles.dataRowEven : styles.dataRowOdd}>
+                                                    <DataTable.Cell style={styles.cell}>{formatDate(entry.date)}</DataTable.Cell>
+                                                    <DataTable.Cell style={styles.cell}>{formatAmount(entry.credit)}</DataTable.Cell>
+                                                    <DataTable.Cell style={styles.cell}>{formatAmount(entry.debit)}</DataTable.Cell>
+                                                    <DataTable.Cell style={styles.cell}>{entry.remarks}</DataTable.Cell>
+                                                </DataTable.Row>
+                                            ))}
+                                        </ScrollView>
+                                    </DataTable>
+                                </View>
+                            )
+                        }
+
+                    </View>
+                )
+            }
+
         </SafeAreaView>
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 16,
-        backgroundColor: '#e6fce6',
-    },
-    heading: {
-        fontSize: 25,
-        fontWeight: 'bold',
-        marginVertical: 16,
-    },
-    dateContainer: {
-        marginBottom: 16,
-        backgroundColor: '#edfaed',
-        padding: 16,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#c4f0c2',
-    },
-    dateText: {
-        fontSize: 16,
-    },
-    dateWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    btnContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    datePicker: {
-        flex: 1,
-    },
-    tableContainer: {
-        backgroundColor: '#fff',
-    },
-    dataRowOdd: {
-        backgroundColor: '#f7faf7',
-    },
-    dataRowEven: {
-        backgroundColor: '#e6fce6',
-    },
-    headerText: {
-        fontWeight: 'bold',
-        fontSize: 14,
-        color: '#000',
-    },
-    cell: {
-        flex: 1,
-    },
-});
+
 
 export { Ledger };

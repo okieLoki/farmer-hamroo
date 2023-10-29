@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, SafeAreaView, Image, StyleSheet } from 'react-native';
+import { View, SafeAreaView, Image} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { TextInput, Button } from 'react-native-paper';
 import { useToast } from "react-native-toast-notifications";
+import { styles } from '../styles/LoginStyles';
 import axios from 'axios';
 
 const LoginPage = () => {
@@ -109,38 +110,5 @@ const LoginPage = () => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#dcf2e5',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    logoContainer: {
-        flex: 1.8,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    logo: {
-        width: 390,
-        height: 380,
-    },
-    formContainer: {
-        flex: 0.6,
-        width: '100%',
-        padding: 20,
-        backgroundColor: '#edf7f1',
-        justifyContent: 'center',
-    },
-    input: {
-        marginBottom: 20,
-        backgroundColor: '#f2fcf7',
-    },
-    submitButton: {
-        backgroundColor: '#3bac64',
-        borderRadius: 40,
-        padding: 5,
-    },
-});
 
 export { LoginPage };
